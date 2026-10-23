@@ -1,0 +1,116 @@
+================================================================================
+HUMAN DIGITAL TWIN (HDT) - FRONTEND IMPLEMENTATION & CHANGES LOG
+================================================================================
+DISCLAIMER: RESEARCH PROTOTYPE ONLY - NOT A CLINICAL TOOL
+This software is an experimental research prototype for uncertainty-aware 3D
+clearance analysis on synthetic and phantom medical scans. It is strictly not
+intended for clinical use, diagnosis, treatment planning, surgical navigation,
+safety assurance, or surgical success prediction.
+================================================================================
+
+1. TECH STACK & ARCHITECTURE
+--------------------------------------------------------------------------------
+- Framework: React 19 + TypeScript (Strict typing, ESM, verbatimModuleSyntax)
+- Build Tool: Vite 8 (Hot Module Replacement, fast production builds)
+- 3D Mesh Viewer: Three.js (v0.186.x) with OBJLoader, OrbitControls, Custom Shaders
+- 2D MPR Viewer: @niivue/niivue (Axial, Coronal, Sagittal orthogonal slicing)
+- Data Visualization: Chart.js + react-chartjs-2 (Monte Carlo histograms)
+- Icons: lucide-react
+- Coordinate Convention: Physical RAS (Right, Anterior, Superior) in millimetres (mm)
+
+
+2. IMPLEMENTED WORKSTATIONS & MODULES
+--------------------------------------------------------------------------------
+
+A. Application Shell & State Router
+   - frontend/src/App.tsx:
+     Central Application Shell. Manages top-level active workstation mode
+     ('clearance' vs 'explorer') synchronized with window.location.hash
+     (#clearance / #explorer). Manages backend connection health checks,
+     re-triggers Three.js view recalculations on mode changes, and renders
+     the shared header and disclaimer footer.
+   - frontend/src/components/Header.tsx:
+     Application top bar with real-time FastAPI backend health status pill,
+     active case / avatar model indicator, non-clinical research prototype
+     disclaimer badge, and a segmented mode toggle pill:
+     [ 🔬 Clearance Lab | 🧍 Body Explorer ].
+
+B. Clearance Lab Workstation (Encapsulated)
+   - frontend/src/layout/ClearanceLabWorkstation.tsx:
+     Dedicated workstation for surgical clearance and uncertainty analysis.
+     Preserves 100% of the original Clearance Lab functionality, state,
+     and tests untouched.
+   - frontend/src/components/CaseDetailsCard.tsx:
+     Displays selected case information, physical origin (ox, oy, oz), voxel
+     spacing (sz, sy, sx) in mm, volume dimensions, and 3x3 direction cosine
+     matrix in RAS space. Lists target and risk structures with direct NIfTI downloads.
+   - frontend/src/components/SliceViewer.tsx:
+     Renders multi-planar reconstruction (MPR) orthogonal 2D slice views of the
+     primary NIfTI scan volume with colorized binary structure masks.
+   - frontend/src/components/Viewer3D.tsx:
+     Loads authoritative surface polygon meshes (.obj) exported by backend marching
+     cubes in physical RAS mm. Shows 3D closest-points line vector and synchronized
+     crosshair sphere.
+   - frontend/src/components/ClearancePanel.tsx:
+     Triggers signed face-to-face Euclidean distance, closest-point coordinates,
+     and surface distance stats (min, mean, max, HD95).
+   - frontend/src/components/UncertaintyPanel.tsx & HistogramChart.tsx:
+     Configures Gaussian random field parameters, executes Monte Carlo simulation,
+     and charts collision probability P(clearance < threshold).
+
+C. Body Explorer: Hologram Hull, Tumor Margin Shell & In-Situ Cut-Plane
+   - frontend/src/layout/BodyExplorerWorkstation.tsx:
+     Full-body digital twin workstation with internal pathology visualization:
+     • Translucent 'Glass / Cyber' Holographic Body Envelope:
+       Custom Fresnel rim-lighting shader (hologramShaders.ts) keeps body center
+       transparent while outlining silhouettes, completely eliminating depth-sorting bugs.
+     • Cranial Tumor Mesh Integration:
+       Loads authoritative marching cubes surface mesh (/tumor_mesh.obj) positioned
+       anatomically inside the cranial vault.
+     • In-Situ 2D MRI Radiology Cut-Plane:
+       2D planar slice strictly pinned at the tumor's center point in physical space.
+       Features Tri-Planar orientation toggles:
+       - Axial (Transverse horizontal plane)
+       - Coronal (Front-to-back frontal plane)
+       - Sagittal (Side-to-side plane)
+       Includes an opacity slider (20% to 100%) and authentic procedural MRI texture
+       (cortex, ventricles, sulci, and contrast-enhancing tumor hyperintensity).
+     • Adjacent Critical Risk Structure:
+       3D tube geometry representing carotid/cranial vascular risk structure in Sky Blue.
+     • Closest-Point Clearance Vector:
+       Displays 3D distance line vector and endpoint spheres connecting tumor to risk structure.
+     • Interactive Surgical Margin Expansion Shell:
+       Real-time slider (0.0 to 10.0 mm) expanding tumor vertices along surface normals.
+       Features live collision alert (Safe Clearance vs. Margin Compromised).
+     • Camera Focal Controls:
+       One-click toggle between [Whole-Body Macro View] and [Zoom to Cranial Tumor].
+     • Preset selection (Standard, Tall, Compact) and stature slider (1400–2100 mm).
+   - frontend/src/layout/mriSliceTexture.ts & mriSliceTexture.test.ts:
+     Procedural generator for high-resolution medical MRI slice textures across
+     Axial, Coronal, and Sagittal cross-sections with SRGBColorSpace.
+   - frontend/src/layout/hologramShaders.ts:
+     Shader materials: createHologramFresnelMaterial (Fresnel rim glow) and
+     createMarginShellMaterial (translucent amber surgical margin expansion halo).
+   - frontend/src/layout/presets.ts & presets.test.ts:
+     Anatomical body models with scaleBodyParams() maintaining floor plane at Y=0
+     and bilateral symmetry. Tested with 100% pass rate.
+
+
+3. TEST VERIFICATION
+--------------------------------------------------------------------------------
+All 9 test suites (48 tests) pass cleanly:
+- mriSliceTexture.test.ts (3 tests)
+- validateBodyParams.test.ts (10 tests)
+- presets.test.ts (4 tests)
+- coordinates.test.ts (9 tests)
+- apiClient.test.ts (8 tests)
+- SliceViewer.test.tsx (5 tests)
+- Viewer3D.test.tsx (4 tests)
+- ClearancePanel.test.tsx (3 tests)
+- UncertaintyPanel.test.tsx (2 tests)
+
+Production build passes:
+- TypeScript (tsc -b) & Vite build: 0 errors.
+- Backend pytest (test_api.py): 11 tests passed.
+- Ruff checks: 0 errors.
+================================================================================
