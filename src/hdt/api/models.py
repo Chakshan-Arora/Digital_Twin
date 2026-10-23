@@ -5,7 +5,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from hdt.atlas.models import Atlas, Condition, Dermatome
-from hdt.body.models import BodyParams
+from hdt.body.models import BodyParams, JointName
 from hdt.nervous.signal import SignalTimeline
 
 
@@ -297,4 +297,108 @@ class PickResponse(BaseModel):
     )
     disclaimer: str = Field(
         ..., description="Educational non-clinical research prototype disclaimer"
+    )
+
+
+class BodyShapeRequest(BaseModel):
+    """Request payload for body shape segments."""
+
+    height_mm: float | None = Field(default=None, description="Standing stature in mm")
+    joints: dict[JointName, tuple[float, float, float]] | None = Field(
+        default=None, description="Joint positions in RAS mm"
+    )
+    source: Literal["scan", "preset"] = Field(
+        default="preset", description="Origin source of the body parameters"
+    )
+    body: BodyParams | None = Field(
+        default=None, description="Nested BodyParams model if supplied"
+    )
+
+    def extract_body_params(self) -> BodyParams:
+        """Extract or construct the canonical BodyParams model."""
+        if self.body is not None:
+            return self.body
+        if self.height_mm is not None and self.joints is not None:
+            return BodyParams(
+                height_mm=self.height_mm, joints=self.joints, source=self.source
+            )
+        raise ValueError("Must provide either 'body' or ('height_mm' and 'joints').")
+
+
+class BodyNervousRequest(BaseModel):
+    """Request payload for nervous network generation."""
+
+    height_mm: float | None = Field(default=None, description="Standing stature in mm")
+    joints: dict[JointName, tuple[float, float, float]] | None = Field(
+        default=None, description="Joint positions in RAS mm"
+    )
+    source: Literal["scan", "preset"] = Field(
+        default="preset", description="Origin source of the body parameters"
+    )
+    body: BodyParams | None = Field(
+        default=None, description="Nested BodyParams model if supplied"
+    )
+    detail: Literal["low", "high"] = Field(
+        default="high", description="Mesh/polyline resolution preset"
+    )
+
+    def extract_body_params(self) -> BodyParams:
+        """Extract or construct the canonical BodyParams model."""
+        if self.body is not None:
+            return self.body
+        if self.height_mm is not None and self.joints is not None:
+            return BodyParams(
+                height_mm=self.height_mm, joints=self.joints, source=self.source
+            )
+        raise ValueError("Must provide either 'body' or ('height_mm' and 'joints').")
+
+
+# ---------------------------------------------------------------------------
+# Real-Time Camera Body Scanner Models
+# ---------------------------------------------------------------------------
+
+
+class BodyLimbMeasurements(BaseModel):
+    """Calculated 3D limb lengths in meters."""
+
+    left_upper_arm: float = Field(..., description="Left humerus length in meters")
+    left_forearm: float = Field(..., description="Left radius/ulna length in meters")
+    right_upper_arm: float = Field(..., description="Right humerus length in meters")
+    right_forearm: float = Field(..., description="Right radius/ulna length in meters")
+    left_arm_total: float = Field(..., description="Total left arm length in meters")
+    right_arm_total: float = Field(..., description="Total right arm length in meters")
+    shoulder_width: float = Field(..., description="Biacromial shoulder width in meters")
+    unit: str = Field(default="meters", description="Measurement unit")
+
+
+class BodyScaleFactors(BaseModel):
+    """Proportional scale factors relative to average adult reference."""
+
+    left_upper_arm: float = Field(..., description="Scale factor for left upper arm")
+    left_forearm: float = Field(..., description="Scale factor for left forearm")
+    right_upper_arm: float = Field(..., description="Scale factor for right upper arm")
+    right_forearm: float = Field(..., description="Scale factor for right forearm")
+    left_arm_total: float = Field(..., description="Scale factor for left arm")
+    right_arm_total: float = Field(..., description="Scale factor for right arm")
+    shoulder_width: float = Field(..., description="Scale factor for shoulder width")
+
+
+class BodyScanResponse(BaseModel):
+    """Real-time body scanner frame result broadcast via WebSocket or polling."""
+
+    status: str = Field(..., description="'active', 'calibrated', 'error', 'no_person'")
+    person_detected: bool = Field(
+        ..., description="Whether a person is currently detected in frame"
+    )
+    message: str = Field(..., description="Status message or error description")
+    timestamp: float = Field(..., description="UNIX epoch timestamp in seconds")
+    fps: float = Field(default=0.0, description="Processing frames per second")
+    measurements: BodyLimbMeasurements | None = Field(
+        default=None, description="Calculated limb lengths in physical meters"
+    )
+    scale_factors: BodyScaleFactors | None = Field(
+        default=None, description="Calculated limb scale factors"
+    )
+    raw_landmarks: dict[str, dict[str, float]] | None = Field(
+        default=None, description="Raw 3D joint landmarks in meters"
     )

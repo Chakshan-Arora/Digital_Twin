@@ -6,6 +6,8 @@ import type {
   HealthResponse,
   UncertaintyRequest,
   UncertaintyResponse,
+  SystemRegistryEntry,
+  SystemItemsResponse,
 } from '../types/api';
 
 export class ApiError extends Error {
@@ -122,6 +124,18 @@ export const apiClient = {
 
   getVolumeDownloadUrl(caseId: string): string {
     return `${getBaseUrl()}/cases/${encodeURIComponent(caseId)}/volume.nii.gz`;
+  },
+
+
+  async listBodySystems(): Promise<SystemRegistryEntry[]> {
+    return request<SystemRegistryEntry[]>('/body/systems');
+  },
+
+  async getBodySystemItems(systemId: string, bodyParams: unknown): Promise<SystemItemsResponse> {
+    return request<SystemItemsResponse>(`/body/systems/${encodeURIComponent(systemId)}`, {
+      method: 'POST',
+      body: JSON.stringify(bodyParams),
+    });
   },
 
   getMaskDownloadUrl(caseId: string, structureName: string): string {

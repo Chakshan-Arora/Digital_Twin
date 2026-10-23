@@ -5,12 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hdt"
 version = "0.1.0"
-description = "Research prototype for uncertainty-aware 3D clearance analysis on medical scans"
+description = "Uncertainty-aware 3D clearance analysis for surgical digital twins"
 readme = "README.md"
 requires-python = ">=3.11"
-authors = [
-    { name = "HDT Research Team" },
-]
+license = { text = "MIT" }
+authors = [{ name = "Human Digital Twin Team" }]
 dependencies = [
     "numpy>=1.24.0",
     "scipy>=1.10.0",
@@ -21,6 +20,8 @@ dependencies = [
     "matplotlib>=3.7.0",
     "pytest>=7.0.0",
     "ruff>=0.1.0",
+    "opencv-python>=4.8.0",
+    "mediapipe>=0.10.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -38,18 +39,10 @@ markers = [
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-exclude = [
-    "venv",
-    ".venv",
-]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "B"]
+select = ["E", "F", "I", "W"]
 ignore = []
 
 [tool.ruff.lint.isort]
 known-first-party = ["hdt"]
-
-[tool.ruff.lint.per-file-ignores]
-# Allow asserts in tests
-"tests/**" = ["B011", "B018"]

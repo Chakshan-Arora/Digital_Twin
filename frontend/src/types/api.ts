@@ -102,3 +102,44 @@ export interface UncertaintyResponse {
   convention: string;
   coordinate_system: 'RAS';
 }
+
+
+export interface SystemRegistryEntry {
+  id: string;
+  name: string;
+  description: string;
+  default_visible: boolean;
+  default_opacity: number;
+  color_hint: string;
+  item_count_note: string;
+  available: boolean;
+}
+
+export interface SystemPrimitive {
+  kind: 'tube' | 'ellipsoid' | 'mesh_hint';
+  polyline?: [number, number, number][];
+  radius_mm?: number;
+  radius_end_mm?: number | null;
+  center?: [number, number, number];
+  radii_mm?: [number, number, number];
+  rotation_deg?: [number, number, number] | null;
+  hint_text?: string;
+  bounding_ellipsoid_center?: [number, number, number];
+  bounding_ellipsoid_radii_mm?: [number, number, number];
+}
+
+export interface SystemItem {
+  id: string;
+  name: string;
+  system: string;
+  side: 'l' | 'r' | 'mid';
+  primitive: SystemPrimitive;
+  color_hint: string;
+  label: string;
+}
+
+export interface SystemItemsResponse {
+  system_id: string;
+  item_count: number;
+  items: SystemItem[];
+}

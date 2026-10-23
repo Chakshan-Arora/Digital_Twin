@@ -6,6 +6,195 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/body/systems": {
+      "get": {
+        "tags": [
+          "Body Systems"
+        ],
+        "summary": "List Systems",
+        "description": "Return the registry of all body systems (available and planned).",
+        "operationId": "list_systems_body_systems_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SystemRegistryEntry"
+                  },
+                  "type": "array",
+                  "title": "Response List Systems Body Systems Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/body/systems/{system_id}": {
+      "post": {
+        "tags": [
+          "Body Systems"
+        ],
+        "summary": "Get System Items",
+        "description": "Build and return the 3-D primitive items for *system_id*.\n\nParameters\n----------\nsystem_id : str\n    One of the available system IDs (skeleton, vascular, organs).\nbody : BodyParams\n    Anthropometric body model supplied in the request body.\n\nReturns\n-------\nSystemItemsResponse\n    JSON-serialisable list of BodyItem dicts.\n\nRaises\n------\n404 : system_id not found or not available\n422 : body params fail anatomical validation",
+        "operationId": "get_system_items_body_systems__system_id__post",
+        "parameters": [
+          {
+            "name": "system_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "System Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BodyParams"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemItemsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/conditions": {
+      "get": {
+        "tags": [
+          "conditions"
+        ],
+        "summary": "List available conditions",
+        "description": "Returns list of clinical condition identifiers and names.",
+        "operationId": "list_conditions_conditions_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConditionSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Conditions Conditions Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/conditions/simulate": {
+      "post": {
+        "tags": [
+          "conditions"
+        ],
+        "summary": "Simulate condition signal loss and 3D lesions",
+        "description": "Simulates neuro-anatomical conduction slowing, fiber drop-out, and 3D focal lesion sites for an anthropometric body model.",
+        "operationId": "post_simulate_condition_conditions_simulate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConditionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConditionResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/conditions/pick": {
+      "post": {
+        "tags": [
+          "conditions"
+        ],
+        "summary": "Pick dermatome and compute condition pathway interruption",
+        "description": "Identifies stimulated dermatome from surface click, computes ascending pathway, and checks for lesion interruption, stopping the pulse at the block point.",
+        "operationId": "pick_condition_pathway_conditions_pick_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PickConditionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PickConditionResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "summary": "Get Health",
@@ -462,10 +651,297 @@
           }
         }
       }
+    },
+    "/body/presets": {
+      "get": {
+        "summary": "List available stature presets",
+        "description": "Returns available anthropometric stature presets (short, average, tall).",
+        "operationId": "list_body_presets_body_presets_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BodyPresetSummary"
+                  },
+                  "type": "array",
+                  "title": "Response List Body Presets Body Presets Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/body/presets/{name}": {
+      "get": {
+        "summary": "Get body preset by name",
+        "description": "Returns a complete BodyParams model scaled to the preset height.",
+        "operationId": "get_body_preset_body_presets__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BodyParams"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/body/pick": {
+      "post": {
+        "summary": "Pick nearest dermatome and compute neural pathway",
+        "description": "Identifies nearest dermatome anchor to query point, builds ascending 3D transmission polyline, and computes conduction latencies.",
+        "operationId": "pick_dermatome_pathway_body_pick_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PickRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PickResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/body/shape": {
+      "post": {
+        "summary": "Compute body segment dimensions and radii",
+        "description": "Returns articulated segment radii and cross-sections scaled to stature.",
+        "operationId": "compute_body_shape_body_shape_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BodyShapeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShapeModelResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/body/nervous": {
+      "post": {
+        "summary": "Generate full 3D nervous system geometry",
+        "description": "Constructs 3D polylines for spinal cord, roots, plexuses, and brain landmarks.",
+        "operationId": "generate_nervous_network_body_nervous_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BodyNervousRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NerveNetworkResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/body-scan/reference": {
+      "get": {
+        "tags": [
+          "Body Scanner"
+        ],
+        "summary": "Get Body Scan Reference",
+        "description": "Retrieve anthropometric reference measurements and camera defaults.",
+        "operationId": "get_body_scan_reference_body_scan_reference_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Get Body Scan Reference Body Scan Reference Get"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AffectedFiberTimelineItem": {
+        "properties": {
+          "fiber_type": {
+            "$ref": "#/components/schemas/FiberType"
+          },
+          "conduction_velocity_mps": {
+            "type": "number",
+            "title": "Conduction Velocity Mps"
+          },
+          "normal_latency_ms": {
+            "type": "number",
+            "title": "Normal Latency Ms"
+          },
+          "affected_latency_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Affected Latency Ms",
+            "description": "Altered latency in ms (null if blocked)"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalStatus"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fiber_type",
+          "conduction_velocity_mps",
+          "normal_latency_ms",
+          "status"
+        ],
+        "title": "AffectedFiberTimelineItem",
+        "description": "Per-fiber conduction latency under condition impairment."
+      },
+      "AffectedSignalTimeline": {
+        "properties": {
+          "dermatome_id": {
+            "type": "string",
+            "title": "Dermatome Id"
+          },
+          "side": {
+            "type": "string",
+            "title": "Side"
+          },
+          "total_path_length_mm": {
+            "type": "number",
+            "title": "Total Path Length Mm"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalStatus"
+          },
+          "fibers": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AffectedFiberTimelineItem"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/FiberType"
+            },
+            "type": "object",
+            "title": "Fibers"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "default": "Pathologically altered axonal conduction timeline. Educational simulation only."
+          }
+        },
+        "type": "object",
+        "required": [
+          "dermatome_id",
+          "side",
+          "total_path_length_mm",
+          "status",
+          "fibers"
+        ],
+        "title": "AffectedSignalTimeline",
+        "description": "Multi-fiber conduction timeline reflecting pathological degradation."
+      },
       "Atlas": {
         "properties": {
           "disclaimer": {
@@ -525,6 +1001,294 @@
         ],
         "title": "BBoxRAS",
         "description": "Axis-aligned bounding box coordinates in physical RAS space."
+      },
+      "BodyNervousRequest": {
+        "properties": {
+          "height_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Mm",
+            "description": "Standing stature in mm"
+          },
+          "joints": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array",
+                  "maxItems": 3,
+                  "minItems": 3
+                },
+                "propertyNames": {
+                  "$ref": "#/components/schemas/JointName"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joints",
+            "description": "Joint positions in RAS mm"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "preset"
+            ],
+            "title": "Source",
+            "description": "Origin source of the body parameters",
+            "default": "preset"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BodyParams"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nested BodyParams model if supplied"
+          },
+          "detail": {
+            "type": "string",
+            "enum": [
+              "low",
+              "high"
+            ],
+            "title": "Detail",
+            "description": "Mesh/polyline resolution preset",
+            "default": "high"
+          }
+        },
+        "type": "object",
+        "title": "BodyNervousRequest",
+        "description": "Request payload for nervous network generation."
+      },
+      "BodyParams": {
+        "properties": {
+          "height_mm": {
+            "type": "number",
+            "title": "Height Mm",
+            "description": "Standing body stature from floor to vertex in millimetres (mm)"
+          },
+          "joints": {
+            "additionalProperties": {
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 3,
+              "minItems": 3
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/JointName"
+            },
+            "type": "object",
+            "title": "Joints",
+            "description": "3D positions [x, y, z] in mm under RAS convention for all 20 joints"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "preset"
+            ],
+            "title": "Source",
+            "description": "Origin source of the body parameters: camera scan vs preset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "height_mm",
+          "joints",
+          "source"
+        ],
+        "title": "BodyParams",
+        "description": "Body Explorer 3D human stature and skeletal joint parameters.\n\nCoordinate system:\n  - Units: Millimetres (mm).\n  - Axes: RAS (x toward person's right, y anterior, z superior).\n  - Origin (0, 0, 0): Situated on the floor plane directly between the feet.\n  - Person stands erect facing +y.\n  - \"l_\" corresponds to person's own left (x < 0).\n  - \"r_\" corresponds to person's own right (x > 0)."
+      },
+      "BodyPresetSummary": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Preset identifier ('short', 'average', 'tall')"
+          },
+          "height_mm": {
+            "type": "number",
+            "title": "Height Mm",
+            "description": "Standing stature in millimetres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "height_mm"
+        ],
+        "title": "BodyPresetSummary",
+        "description": "Summary metadata for a stature preset."
+      },
+      "BodySegment": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Segment identifier, e.g. 'torso', 'l_upper_arm'"
+          },
+          "joint_a": {
+            "$ref": "#/components/schemas/JointName",
+            "description": "Proximal skeletal joint anchor"
+          },
+          "joint_b": {
+            "$ref": "#/components/schemas/JointName",
+            "description": "Distal skeletal joint anchor"
+          },
+          "radius_mm_a": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Radius Mm A",
+            "description": "Cross-section radius at joint_a in mm"
+          },
+          "radius_mm_b": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Radius Mm B",
+            "description": "Cross-section radius at joint_b in mm"
+          },
+          "half_width_mm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Half Width Mm",
+            "description": "Lateral half-width (x-axis) in mm for elliptical cross-sections (e.g. torso)"
+          },
+          "half_depth_mm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Half Depth Mm",
+            "description": "Anteroposterior half-depth (y-axis) in mm for elliptical cross-sections"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "joint_a",
+          "joint_b",
+          "radius_mm_a",
+          "radius_mm_b"
+        ],
+        "title": "BodySegment",
+        "description": "Geometric definition of a body segment connecting two skeletal joints."
+      },
+      "BodyShapeRequest": {
+        "properties": {
+          "height_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Mm",
+            "description": "Standing stature in mm"
+          },
+          "joints": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "type": "array",
+                  "maxItems": 3,
+                  "minItems": 3
+                },
+                "propertyNames": {
+                  "$ref": "#/components/schemas/JointName"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Joints",
+            "description": "Joint positions in RAS mm"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "preset"
+            ],
+            "title": "Source",
+            "description": "Origin source of the body parameters",
+            "default": "preset"
+          },
+          "body": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BodyParams"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nested BodyParams model if supplied"
+          }
+        },
+        "type": "object",
+        "title": "BodyShapeRequest",
+        "description": "Request payload for body shape segments."
       },
       "BodyZone": {
         "properties": {
@@ -586,6 +1350,80 @@
         ],
         "title": "BodyZone",
         "description": "Anatomical body zone categorization for a dermatome."
+      },
+      "BrainStructure": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Structure name, e.g. 'cerebrum', 'cerebellum', 'brainstem', 'thalamus'"
+          },
+          "centroid_ras_mm": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Centroid Ras Mm",
+            "description": "Center of mass [x, y, z] in RAS millimetres"
+          },
+          "dimensions_mm": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Dimensions Mm",
+            "description": "Bounding box extent [dx, dy, dz] in millimetres"
+          },
+          "boundary_points": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 3,
+              "minItems": 3
+            },
+            "type": "array",
+            "title": "Boundary Points",
+            "description": "Key boundary landmarks or contour points in RAS millimetres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "centroid_ras_mm",
+          "dimensions_mm"
+        ],
+        "title": "BrainStructure",
+        "description": "Anatomical representation of an intracranial brain structure."
       },
       "CaseDetail": {
         "properties": {
@@ -889,6 +1727,150 @@
         "title": "Condition",
         "description": "Common peripheral nerve or radicular clinical condition."
       },
+      "ConditionRequest": {
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/BodyParams",
+            "description": "Subject skeletal model"
+          },
+          "condition_id": {
+            "type": "string",
+            "title": "Condition Id",
+            "description": "Condition identifier from atlas, e.g. 'sciatica'"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r",
+              "both"
+            ],
+            "title": "Side",
+            "description": "Anatomical stimulation / lesion lateralisation",
+            "default": "r"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/Severity",
+            "description": "Clinical severity grading",
+            "default": "moderate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body",
+          "condition_id"
+        ],
+        "title": "ConditionRequest",
+        "description": "Input parameters for condition simulation."
+      },
+      "ConditionResult": {
+        "properties": {
+          "condition_id": {
+            "type": "string",
+            "title": "Condition Id",
+            "description": "Condition identifier from atlas"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Clinical diagnostic name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Pathophysiological overview"
+          },
+          "symptoms": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Symptoms",
+            "description": "Characteristic clinical symptoms"
+          },
+          "compressed_roots": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Compressed Roots",
+            "description": "Affected spinal roots"
+          },
+          "dermatome_effects": {
+            "items": {
+              "$ref": "#/components/schemas/DermatomeEffect"
+            },
+            "type": "array",
+            "title": "Dermatome Effects",
+            "description": "Dermatomes experiencing signal slowing or blockade"
+          },
+          "nerve_effects": {
+            "items": {
+              "$ref": "#/components/schemas/NerveEffect"
+            },
+            "type": "array",
+            "title": "Nerve Effects",
+            "description": "Peripheral nerves and spinal roots affected by the condition"
+          },
+          "lesions": {
+            "items": {
+              "$ref": "#/components/schemas/Lesion"
+            },
+            "type": "array",
+            "title": "Lesions",
+            "description": "3D focal lesion sites on the nerve network"
+          },
+          "unaffected_dermatomes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unaffected Dermatomes",
+            "description": "Dermatome IDs maintaining normal signal transmission"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Clinical and research disclaimer",
+            "default": "Educational simulation of neuropathic signal loss. Research prototype only; NOT a clinical diagnostic tool and never to be used for patient prognosis."
+          }
+        },
+        "type": "object",
+        "required": [
+          "condition_id",
+          "name",
+          "description",
+          "symptoms",
+          "compressed_roots",
+          "dermatome_effects",
+          "nerve_effects",
+          "lesions",
+          "unaffected_dermatomes"
+        ],
+        "title": "ConditionResult",
+        "description": "Complete condition simulation result payload."
+      },
+      "ConditionSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Condition identifier (e.g. 'sciatica')"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Clinical diagnostic name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "ConditionSummary",
+        "description": "Brief summary of a clinical condition."
+      },
       "Dermatome": {
         "properties": {
           "id": {
@@ -954,6 +1936,171 @@
         "title": "Dermatome",
         "description": "Sensory cutaneous dermatome and its ascending neural transmission path."
       },
+      "DermatomeEffect": {
+        "properties": {
+          "dermatome_id": {
+            "type": "string",
+            "title": "Dermatome Id",
+            "description": "Dermatome identifier (e.g. 'L5')"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r"
+            ],
+            "title": "Side",
+            "description": "Anatomical side ('l' or 'r')"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region",
+            "description": "Plain-English cutaneous skin territory"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalStatus",
+            "description": "Overall sensory transmission status for this dermatome"
+          },
+          "fibers": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FiberEffect"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/FiberType"
+            },
+            "type": "object",
+            "title": "Fibers",
+            "description": "Per-fiber electrophysiological effects and latencies"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dermatome_id",
+          "side",
+          "region",
+          "status",
+          "fibers"
+        ],
+        "title": "DermatomeEffect",
+        "description": "Sensory impairment profile for a single dermatome."
+      },
+      "FiberEffect": {
+        "properties": {
+          "fiber_type": {
+            "$ref": "#/components/schemas/FiberType",
+            "description": "Fiber classification (A_beta, A_delta, C)"
+          },
+          "normal_latency_ms": {
+            "type": "number",
+            "title": "Normal Latency Ms",
+            "description": "Baseline physiological conduction latency in ms"
+          },
+          "affected_latency_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Affected Latency Ms",
+            "description": "Pathologically altered conduction latency in ms (null if blocked)"
+          },
+          "conduction_velocity_mps": {
+            "type": "number",
+            "title": "Conduction Velocity Mps",
+            "description": "Baseline conduction velocity in m/s"
+          },
+          "affected_velocity_mps": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Affected Velocity Mps",
+            "description": "Pathologically altered conduction velocity in m/s (null if blocked)"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalStatus",
+            "description": "Signal transmission status for this fiber"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fiber_type",
+          "normal_latency_ms",
+          "conduction_velocity_mps",
+          "status"
+        ],
+        "title": "FiberEffect",
+        "description": "Conduction latency and velocity alterations for an individual fiber type."
+      },
+      "FiberTimelineItem": {
+        "properties": {
+          "fiber_type": {
+            "$ref": "#/components/schemas/FiberType"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "total_path_length_mm": {
+            "type": "number",
+            "title": "Total Path Length Mm",
+            "description": "Total 3D pathway distance from skin receptor to cortex_S1 in mm"
+          },
+          "conduction_velocity_mps": {
+            "type": "number",
+            "title": "Conduction Velocity Mps",
+            "description": "Axonal conduction velocity used for standard latency in m/s"
+          },
+          "latency_ms": {
+            "type": "number",
+            "title": "Latency Ms",
+            "description": "Conduction latency in milliseconds (length_mm / velocity_mps)"
+          },
+          "latency_range_ms": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Latency Range Ms",
+            "description": "Plausible physiological latency range [fastest, slowest] in ms based on velocity bounds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "fiber_type",
+          "name",
+          "total_path_length_mm",
+          "conduction_velocity_mps",
+          "latency_ms",
+          "latency_range_ms"
+        ],
+        "title": "FiberTimelineItem",
+        "description": "Conduction parameters and estimated transmission latency for a fiber type."
+      },
+      "FiberType": {
+        "type": "string",
+        "enum": [
+          "A_beta",
+          "A_delta",
+          "C"
+        ],
+        "title": "FiberType",
+        "description": "Primary sensory nerve fiber classifications."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -978,6 +2125,348 @@
         "type": "object",
         "title": "HealthResponse",
         "description": "Health check response."
+      },
+      "JointName": {
+        "type": "string",
+        "enum": [
+          "head",
+          "neck",
+          "chest",
+          "pelvis",
+          "l_shoulder",
+          "r_shoulder",
+          "l_elbow",
+          "r_elbow",
+          "l_wrist",
+          "r_wrist",
+          "l_hand",
+          "r_hand",
+          "l_hip",
+          "r_hip",
+          "l_knee",
+          "r_knee",
+          "l_ankle",
+          "r_ankle",
+          "l_foot",
+          "r_foot"
+        ],
+        "title": "JointName",
+        "description": "Canonical 20 skeletal joints in the human body skeleton."
+      },
+      "Lesion": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "root_compression",
+              "peripheral_entrapment",
+              "cord_transection"
+            ],
+            "title": "Kind",
+            "description": "Pathological classification of the lesion"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Descriptive pathology label"
+          },
+          "point": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Point",
+            "description": "3D focal lesion center [x, y, z] in RAS mm"
+          },
+          "nerve_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nerve Id",
+            "description": "Affected peripheral nerve identifier if applicable"
+          },
+          "cord_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cord Level",
+            "description": "Spinal cord segment level if applicable (e.g. 'cord_T10')"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r",
+              "both"
+            ],
+            "title": "Side",
+            "description": "Anatomical lateralisation"
+          },
+          "radius_mm": {
+            "type": "number",
+            "title": "Radius Mm",
+            "description": "Approximate spatial extent radius in mm for 3D visual rendering",
+            "default": 12.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "label",
+          "point",
+          "side"
+        ],
+        "title": "Lesion",
+        "description": "Structural pathology location on the 3D nervous system network."
+      },
+      "NerveEffect": {
+        "properties": {
+          "nerve_id": {
+            "type": "string",
+            "title": "Nerve Id",
+            "description": "Anatomical nerve or branch name"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r",
+              "midline"
+            ],
+            "title": "Side",
+            "description": "Anatomical lateralisation"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SignalStatus",
+            "description": "Functional signal transmission status"
+          },
+          "lesion_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lesion Index",
+            "description": "Index along the nerve polyline where lesion occurs (null if unaffected)"
+          },
+          "lesion_point": {
+            "anyOf": [
+              {
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array",
+                "maxItems": 3,
+                "minItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lesion Point",
+            "description": "3D coordinates [x, y, z] of lesion in RAS mm (null if unaffected)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nerve_id",
+          "side",
+          "status"
+        ],
+        "title": "NerveEffect",
+        "description": "Downstream functional impairment for a specific nerve tract."
+      },
+      "NerveNetworkResponse": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "enum": [
+              "low",
+              "high"
+            ],
+            "title": "Detail",
+            "description": "Mesh / polyline resolution level"
+          },
+          "total_vertex_count": {
+            "type": "integer",
+            "title": "Total Vertex Count",
+            "description": "Total count of 3D vertices across all nerve polylines"
+          },
+          "spinal_cord": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 3,
+              "minItems": 3
+            },
+            "type": "array",
+            "title": "Spinal Cord",
+            "description": "Smooth Catmull-Rom spinal cord polyline from brainstem to conus"
+          },
+          "brain_structures": {
+            "items": {
+              "$ref": "#/components/schemas/BrainStructure"
+            },
+            "type": "array",
+            "title": "Brain Structures",
+            "description": "Intracranial brain regions and somatosensory cortical landmarks"
+          },
+          "spinal_roots": {
+            "items": {
+              "$ref": "#/components/schemas/NervePolyline"
+            },
+            "type": "array",
+            "title": "Spinal Roots",
+            "description": "31 bilateral pairs of spinal nerve roots (C1-Co1)"
+          },
+          "brachial_plexus": {
+            "items": {
+              "$ref": "#/components/schemas/NervePolyline"
+            },
+            "type": "array",
+            "title": "Brachial Plexus",
+            "description": "Trunks, cords, and terminal arm nerves (axillary, radial, median, ulnar)"
+          },
+          "intercostal_nerves": {
+            "items": {
+              "$ref": "#/components/schemas/NervePolyline"
+            },
+            "type": "array",
+            "title": "Intercostal Nerves",
+            "description": "Thoracic intercostal nerves wrapping the ribcage (T1-T11)"
+          },
+          "lumbosacral_plexus": {
+            "items": {
+              "$ref": "#/components/schemas/NervePolyline"
+            },
+            "type": "array",
+            "title": "Lumbosacral Plexus",
+            "description": "Lower extremity nerves (femoral, obturator, saphenous, sciatic, fibular)"
+          },
+          "cranial_nerves": {
+            "items": {
+              "$ref": "#/components/schemas/NervePolyline"
+            },
+            "type": "array",
+            "title": "Cranial Nerves",
+            "description": "Cranial nerves including bilateral vagus (CN X)"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Clinical disclaimer",
+            "default": "Research prototype for 3D educational anatomical visualisation. NOT a clinical tool."
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail",
+          "total_vertex_count",
+          "spinal_cord",
+          "brain_structures",
+          "spinal_roots",
+          "brachial_plexus",
+          "intercostal_nerves",
+          "lumbosacral_plexus",
+          "cranial_nerves"
+        ],
+        "title": "NerveNetworkResponse",
+        "description": "Complete 3D nervous system geometry payload for rendering."
+      },
+      "NervePolyline": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Anatomical nerve or branch identifier"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Plexus category (spinal_root, brachial, intercostal, lumbosacral, cranial)"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r",
+              "midline"
+            ],
+            "title": "Side",
+            "description": "Anatomical lateralisation: 'l', 'r', or 'midline'"
+          },
+          "points": {
+            "items": {
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array",
+              "maxItems": 3,
+              "minItems": 3
+            },
+            "type": "array",
+            "title": "Points",
+            "description": "Sequence of 3D vertices [x, y, z] in RAS millimetres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "category",
+          "side",
+          "points"
+        ],
+        "title": "NervePolyline",
+        "description": "Renderable 3D polyline representing a nerve tract or branch."
       },
       "NodeName": {
         "type": "string",
@@ -1039,6 +2528,250 @@
         "title": "NodeName",
         "description": "Skeletal joints, spinal cord segments, and central sensory relay nodes."
       },
+      "PickConditionRequest": {
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/BodyParams",
+            "description": "Subject skeletal model"
+          },
+          "point_ras": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Point Ras",
+            "description": "Query surface coordinate [x, y, z] in RAS mm"
+          },
+          "condition_id": {
+            "type": "string",
+            "title": "Condition Id",
+            "description": "Clinical condition ID, e.g. 'sciatica'"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r",
+              "both"
+            ],
+            "title": "Side",
+            "description": "Condition lateralisation ('l', 'r', 'both')",
+            "default": "r"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/Severity",
+            "description": "Clinical severity grading",
+            "default": "moderate"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body",
+          "point_ras",
+          "condition_id"
+        ],
+        "title": "PickConditionRequest",
+        "description": "Request payload for dermatome point picking under an active condition."
+      },
+      "PickConditionResponse": {
+        "properties": {
+          "dermatome_id": {
+            "type": "string",
+            "title": "Dermatome Id"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r"
+            ],
+            "title": "Side"
+          },
+          "distance_to_anchor_mm": {
+            "type": "number",
+            "title": "Distance To Anchor Mm"
+          },
+          "pathway": {
+            "items": {
+              "$ref": "#/components/schemas/hdt__api__routes_conditions__PathwayPoint"
+            },
+            "type": "array",
+            "title": "Pathway"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/SignalTimeline"
+          },
+          "blocked": {
+            "type": "boolean",
+            "title": "Blocked",
+            "description": "Whether ascending sensory transmission is interrupted"
+          },
+          "block_index": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Block Index",
+            "description": "Index along pathway polyline where transmission stops (null if unblocked)"
+          },
+          "block_point": {
+            "anyOf": [
+              {
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array",
+                "maxItems": 3,
+                "minItems": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Block Point",
+            "description": "3D coordinate in RAS mm where signal pulse terminates (null if unblocked)"
+          },
+          "affected_timeline": {
+            "$ref": "#/components/schemas/AffectedSignalTimeline",
+            "description": "Multi-fiber conduction timeline with affected latencies"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Educational non-clinical research prototype disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dermatome_id",
+          "region",
+          "side",
+          "distance_to_anchor_mm",
+          "pathway",
+          "timeline",
+          "blocked",
+          "affected_timeline",
+          "disclaimer"
+        ],
+        "title": "PickConditionResponse",
+        "description": "Result of dermatome pick with lesion interruption and affected conduction timeline."
+      },
+      "PickRequest": {
+        "properties": {
+          "body": {
+            "$ref": "#/components/schemas/BodyParams",
+            "description": "Subject skeletal model"
+          },
+          "point_ras": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Point Ras",
+            "description": "Query surface point [x, y, z] in RAS millimetres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body",
+          "point_ras"
+        ],
+        "title": "PickRequest",
+        "description": "Request payload for dermatome point picking."
+      },
+      "PickResponse": {
+        "properties": {
+          "dermatome_id": {
+            "type": "string",
+            "title": "Dermatome Id",
+            "description": "Identified dermatome ID (e.g. 'L5')"
+          },
+          "region": {
+            "type": "string",
+            "title": "Region",
+            "description": "Plain-English anatomical skin territory from atlas"
+          },
+          "side": {
+            "type": "string",
+            "enum": [
+              "l",
+              "r"
+            ],
+            "title": "Side",
+            "description": "Anatomical stimulation side ('l' or 'r')"
+          },
+          "distance_to_anchor_mm": {
+            "type": "number",
+            "title": "Distance To Anchor Mm",
+            "description": "3D Euclidean distance to nearest skin anchor in mm"
+          },
+          "pathway": {
+            "items": {
+              "$ref": "#/components/schemas/hdt__api__models__PathwayPoint"
+            },
+            "type": "array",
+            "title": "Pathway",
+            "description": "Labelled polyline tracing peripheral nerve, cord ascent, and cortex_S1"
+          },
+          "timeline": {
+            "$ref": "#/components/schemas/SignalTimeline",
+            "description": "Multi-fiber conduction latency calculations"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Educational non-clinical research prototype disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dermatome_id",
+          "region",
+          "side",
+          "distance_to_anchor_mm",
+          "pathway",
+          "timeline",
+          "disclaimer"
+        ],
+        "title": "PickResponse",
+        "description": "Result of dermatome pick with ascending pathway polyline and conduction timeline."
+      },
       "ResolutionBlock": {
         "properties": {
           "spacing_mm": {
@@ -1068,6 +2801,90 @@
         ],
         "title": "ResolutionBlock",
         "description": "Voxel grid resolution and directional extent along closest voxel pair."
+      },
+      "Severity": {
+        "type": "string",
+        "enum": [
+          "mild",
+          "moderate",
+          "severe"
+        ],
+        "title": "Severity",
+        "description": "Clinical severity grading for neuropathic or compressive lesions."
+      },
+      "ShapeModelResponse": {
+        "properties": {
+          "height_mm": {
+            "type": "number",
+            "title": "Height Mm",
+            "description": "Body stature in millimetres"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/BodySegment"
+            },
+            "type": "array",
+            "title": "Segments",
+            "description": "List of all articulated body segments"
+          }
+        },
+        "type": "object",
+        "required": [
+          "height_mm",
+          "segments"
+        ],
+        "title": "ShapeModelResponse",
+        "description": "Response schema for body shape segments and dimensions."
+      },
+      "SignalStatus": {
+        "type": "string",
+        "enum": [
+          "normal",
+          "slowed",
+          "blocked"
+        ],
+        "title": "SignalStatus",
+        "description": "Signal propagation status across an axon or neural pathway."
+      },
+      "SignalTimeline": {
+        "properties": {
+          "dermatome_id": {
+            "type": "string",
+            "title": "Dermatome Id"
+          },
+          "side": {
+            "type": "string",
+            "title": "Side"
+          },
+          "total_path_length_mm": {
+            "type": "number",
+            "title": "Total Path Length Mm"
+          },
+          "fibers": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FiberTimelineItem"
+            },
+            "propertyNames": {
+              "$ref": "#/components/schemas/FiberType"
+            },
+            "type": "object",
+            "title": "Fibers"
+          },
+          "notes": {
+            "type": "string",
+            "title": "Notes",
+            "default": "Axonal conduction time only. Ignores central chemical synaptic delays (approx 0.5 - 2.0 ms per synaptic relay)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "dermatome_id",
+          "side",
+          "total_path_length_mm",
+          "fibers"
+        ],
+        "title": "SignalTimeline",
+        "description": "Complete multi-fiber conduction latency timeline for a cutaneous stimulus."
       },
       "StructureStats": {
         "properties": {
@@ -1150,6 +2967,83 @@
         ],
         "title": "StructureSummary",
         "description": "Summary of a segmented structure within a case."
+      },
+      "SystemItemsResponse": {
+        "properties": {
+          "system_id": {
+            "type": "string",
+            "title": "System Id"
+          },
+          "item_count": {
+            "type": "integer",
+            "title": "Item Count"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "system_id",
+          "item_count",
+          "items"
+        ],
+        "title": "SystemItemsResponse",
+        "description": "Response payload for /body/systems/{system_id}."
+      },
+      "SystemRegistryEntry": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "default_visible": {
+            "type": "boolean",
+            "title": "Default Visible"
+          },
+          "default_opacity": {
+            "type": "number",
+            "title": "Default Opacity"
+          },
+          "color_hint": {
+            "type": "string",
+            "title": "Color Hint"
+          },
+          "item_count_note": {
+            "type": "string",
+            "title": "Item Count Note"
+          },
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "description",
+          "default_visible",
+          "default_opacity",
+          "color_hint",
+          "item_count_note",
+          "available"
+        ],
+        "title": "SystemRegistryEntry",
+        "description": "Metadata for a single body system."
       },
       "UncertaintyRequest": {
         "properties": {
@@ -1404,6 +3298,74 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "hdt__api__models__PathwayPoint": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Anatomical node name (e.g. skin_anchor, cord_L5, cortex_S1)"
+          },
+          "point_ras_mm": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Point Ras Mm",
+            "description": "3D spatial coordinate [x, y, z] in RAS millimetres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "point_ras_mm"
+        ],
+        "title": "PathwayPoint",
+        "description": "Labelled anatomical coordinate along the ascending transmission path."
+      },
+      "hdt__api__routes_conditions__PathwayPoint": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Anatomical node name"
+          },
+          "point_ras_mm": {
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 3,
+            "title": "Point Ras Mm",
+            "description": "3D spatial coordinate [x, y, z] in RAS millimetres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "point_ras_mm"
+        ],
+        "title": "PathwayPoint",
+        "description": "Labelled anatomical coordinate along the ascending transmission path."
       }
     }
   }
