@@ -36,7 +36,7 @@ def test_get_dermatome_success():
 
     assert dermatome["id"] == "L5"
     assert dermatome["root"] == "L5"
-    assert "lateral lower leg" in dermatome["region"]
+    assert "lateral lower leg" in dermatome["region"].lower()
     assert dermatome["body_zone"]["kind"] == "leg"
     assert dermatome["path"][-1] == "cortex_S1"
     assert "cord_L5" in dermatome["path"]

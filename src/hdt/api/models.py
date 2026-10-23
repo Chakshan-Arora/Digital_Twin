@@ -5,6 +5,8 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from hdt.atlas.models import Atlas, Condition, Dermatome
+from hdt.body.models import BodyParams
+from hdt.nervous.signal import SignalTimeline
 
 
 class HealthResponse(BaseModel):
@@ -244,3 +246,55 @@ class DermatomeResponse(Dermatome):
 
 class ConditionResponse(Condition):
     """Response schema for a clinical nerve condition."""
+
+
+# ---------------------------------------------------------------------------
+# Body Explorer & Dermatome Picking Models
+# ---------------------------------------------------------------------------
+
+
+class BodyPresetSummary(BaseModel):
+    """Summary metadata for a stature preset."""
+
+    name: str = Field(..., description="Preset identifier ('short', 'average', 'tall')")
+    height_mm: float = Field(..., description="Standing stature in millimetres")
+
+
+class PickRequest(BaseModel):
+    """Request payload for dermatome point picking."""
+
+    body: BodyParams = Field(..., description="Subject skeletal model")
+    point_ras: tuple[float, float, float] = Field(
+        ..., description="Query surface point [x, y, z] in RAS millimetres"
+    )
+
+
+class PathwayPoint(BaseModel):
+    """Labelled anatomical coordinate along the ascending transmission path."""
+
+    label: str = Field(
+        ..., description="Anatomical node name (e.g. skin_anchor, cord_L5, cortex_S1)"
+    )
+    point_ras_mm: tuple[float, float, float] = Field(
+        ..., description="3D spatial coordinate [x, y, z] in RAS millimetres"
+    )
+
+
+class PickResponse(BaseModel):
+    """Result of dermatome pick with ascending pathway polyline and conduction timeline."""
+
+    dermatome_id: str = Field(..., description="Identified dermatome ID (e.g. 'L5')")
+    region: str = Field(..., description="Plain-English anatomical skin territory from atlas")
+    side: Literal["l", "r"] = Field(..., description="Anatomical stimulation side ('l' or 'r')")
+    distance_to_anchor_mm: float = Field(
+        ..., description="3D Euclidean distance to nearest skin anchor in mm"
+    )
+    pathway: list[PathwayPoint] = Field(
+        ..., description="Labelled polyline tracing peripheral nerve, cord ascent, and cortex_S1"
+    )
+    timeline: SignalTimeline = Field(
+        ..., description="Multi-fiber conduction latency calculations"
+    )
+    disclaimer: str = Field(
+        ..., description="Educational non-clinical research prototype disclaimer"
+    )
