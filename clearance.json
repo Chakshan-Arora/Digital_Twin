@@ -1,0 +1,38 @@
+﻿{
+    "signed_clearance_mm":  5.0,
+    "clearance_mm":  5.0,
+    "convention":  "face_to_face_voxel_sets",
+    "closest_points_mm":  {
+                              "distance_mm":  6.0,
+                              "point_target_ras_mm":  [
+                                                          -50.54219367523338,
+                                                          -12.0,
+                                                          64.05468152942476
+                                                      ],
+                              "point_risk_ras_mm":  [
+                                                        -56.33774863296779,
+                                                        -12.0,
+                                                        62.50176725880962
+                                                    ],
+                              "point_a_ras_mm":  [
+                                                     -50.54219367523338,
+                                                     -12.0,
+                                                     64.05468152942476
+                                                 ],
+                              "point_b_ras_mm":  [
+                                                     -56.33774863296779,
+                                                     -12.0,
+                                                     62.50176725880962
+                                                 ],
+                              "coordinate_system":  "RAS"
+                          },
+    "surface_distance_stats":  {
+                                   "min":  6.0,
+                                   "mean":  12.115192302364042,
+                                   "hd95_a_to_b":  17.11724276862369,
+                                   "hd95_b_to_a":  13.16623227007336,
+                                   "hd95":  17.11724276862369,
+                                   "max":  18.0
+                               },
+    "coordinate_system":  "RAS"
+}

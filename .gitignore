@@ -1,0 +1,40 @@
+# Data and cache
+data/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Medical imaging formats
+*.nii
+*.nii.gz
+
+# Notebooks & IDE
+.ipynb_checkpoints/
+.vscode/
+.idea/
+
+# Testing & Linting
+.pytest_cache/
+.ruff_cache/
+
+# Distribution & Packaging
+dist/
+build/
+*.egg-info/
+
+# Logs
+logs/
+
+# Frontend dependencies & build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+*.zip
+*.tar

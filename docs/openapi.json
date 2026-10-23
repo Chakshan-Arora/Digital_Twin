@@ -1,0 +1,1055 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Human Digital Twin (HDT) Clearance API",
+    "description": "Research prototype for uncertainty-aware 3D clearance analysis.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Get Health",
+        "description": "Health check endpoint.",
+        "operationId": "get_health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases": {
+      "get": {
+        "summary": "Get Cases",
+        "description": "List all available cases with their structures and roles.",
+        "operationId": "get_cases_cases_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CaseSummary"
+                  },
+                  "type": "array",
+                  "title": "Response Get Cases Cases Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}": {
+      "get": {
+        "summary": "Get Case",
+        "description": "Get spatial metadata and structure list for a specific case in RAS coordinates.",
+        "operationId": "get_case_cases__case_id__get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/volume.nii.gz": {
+      "get": {
+        "summary": "Get Case Volume",
+        "description": "Stream download the primary volumetric image as a NIfTI file.",
+        "operationId": "get_case_volume_cases__case_id__volume_nii_gz_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/structures/{structure_name}/mask.nii.gz": {
+      "get": {
+        "summary": "Get Structure Mask",
+        "description": "Stream download the structure binary mask as a NIfTI file.",
+        "operationId": "get_structure_mask_cases__case_id__structures__structure_name__mask_nii_gz_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          },
+          {
+            "name": "structure_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Structure Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/structures/{structure_name}/stats": {
+      "get": {
+        "summary": "Get Structure Stats",
+        "description": "Compute geometric and volumetric statistics for a structure.",
+        "operationId": "get_structure_stats_cases__case_id__structures__structure_name__stats_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          },
+          {
+            "name": "structure_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Structure Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructureStats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/structures/{structure_name}/mesh.obj": {
+      "get": {
+        "summary": "Get Structure Mesh",
+        "description": "Generate 3D surface mesh (OBJ format) in RAS coordinates with outward winding.",
+        "operationId": "get_structure_mesh_cases__case_id__structures__structure_name__mesh_obj_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          },
+          {
+            "name": "structure_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Structure Name"
+            }
+          },
+          {
+            "name": "max_triangles",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500000,
+              "minimum": 1,
+              "default": 150000,
+              "title": "Max Triangles"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/clearance": {
+      "post": {
+        "summary": "Compute Clearance",
+        "description": "Compute face-to-face signed clearance and closest points between structures.",
+        "operationId": "compute_clearance_cases__case_id__clearance_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClearanceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClearanceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/{case_id}/uncertainty": {
+      "post": {
+        "summary": "Compute Uncertainty",
+        "description": "Run Monte Carlo clearance uncertainty analysis under smooth boundary perturbation.",
+        "operationId": "compute_uncertainty_cases__case_id__uncertainty_post",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Case Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UncertaintyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UncertaintyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BBoxRAS": {
+        "properties": {
+          "min": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Min",
+            "description": "Minimum bounding coordinates [x, y, z] in RAS mm"
+          },
+          "max": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Max",
+            "description": "Maximum bounding coordinates [x, y, z] in RAS mm"
+          }
+        },
+        "type": "object",
+        "required": [
+          "min",
+          "max"
+        ],
+        "title": "BBoxRAS",
+        "description": "Axis-aligned bounding box coordinates in physical RAS space."
+      },
+      "CaseDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique opaque case identifier"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Human-readable case name"
+          },
+          "primary_image_name": {
+            "type": "string",
+            "title": "Primary Image Name",
+            "description": "Name of the default/primary image modality",
+            "default": "t1"
+          },
+          "spacing_mm": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Spacing Mm",
+            "description": "Voxel spacing (sx, sy, sz) in millimetres under RAS convention"
+          },
+          "spacing_zyx_mm": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Spacing Zyx Mm",
+            "description": "Internal voxel spacing in NumPy (z, y, x) order in mm"
+          },
+          "shape": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Shape",
+            "description": "Volume dimensions in NumPy (z, y, x) order"
+          },
+          "shape_zyx": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Shape Zyx",
+            "description": "Internal volume shape in NumPy (z, y, x) order"
+          },
+          "size": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Size",
+            "description": "Volume dimensions (size_x, size_y, size_z) in voxels"
+          },
+          "origin_ras_mm": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Origin Ras Mm",
+            "description": "Physical origin (x, y, z) in millimetres under RAS convention"
+          },
+          "direction_ras": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Direction Ras",
+            "description": "3x3 direction cosine matrix in RAS space"
+          },
+          "structures": {
+            "items": {
+              "$ref": "#/components/schemas/StructureSummary"
+            },
+            "type": "array",
+            "title": "Structures",
+            "description": "List of segmented structures and roles"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata",
+            "description": "Arbitrary case-level metadata"
+          },
+          "coordinate_system": {
+            "type": "string",
+            "title": "Coordinate System",
+            "description": "Spatial coordinate convention (always 'RAS')",
+            "default": "RAS"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "spacing_mm",
+          "spacing_zyx_mm",
+          "shape",
+          "shape_zyx",
+          "size",
+          "origin_ras_mm",
+          "direction_ras",
+          "structures"
+        ],
+        "title": "CaseDetail",
+        "description": "Detailed spatial geometry and structure definitions for a case."
+      },
+      "CaseSummary": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Unique opaque case identifier"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Human-readable case name"
+          },
+          "structures": {
+            "items": {
+              "$ref": "#/components/schemas/StructureSummary"
+            },
+            "type": "array",
+            "title": "Structures",
+            "description": "List of segmented structures and roles"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "structures"
+        ],
+        "title": "CaseSummary",
+        "description": "Summary representation of an imaging case."
+      },
+      "ClearanceRequest": {
+        "properties": {
+          "target_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Name",
+            "description": "Target structure name"
+          },
+          "risk_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Name",
+            "description": "Risk structure name"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target",
+            "description": "Alternative alias for target_name"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk",
+            "description": "Alternative alias for risk_name"
+          }
+        },
+        "type": "object",
+        "title": "ClearanceRequest",
+        "description": "Request payload for pairwise mask-to-mask clearance computation."
+      },
+      "ClearanceResponse": {
+        "properties": {
+          "clearance_mm": {
+            "type": "number",
+            "title": "Clearance Mm",
+            "description": "Headline face-to-face clearance in mm. Positive = gap, 0 = touch, negative = penetration"
+          },
+          "convention": {
+            "type": "string",
+            "title": "Convention",
+            "description": "Geometric distance convention applied",
+            "default": "face_to_face_voxel_sets"
+          },
+          "closest_points_mm": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Closest Points Mm",
+            "description": "Closest point coordinates in RAS physical millimetres and centre distance"
+          },
+          "surface_distance_stats": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Surface Distance Stats",
+            "description": "Symmetric surface distance metrics (centre_min_mm, mean, hd95, max) in mm"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/ResolutionBlock",
+            "description": "Voxel grid resolution and directional extent along closest voxel pair"
+          },
+          "coordinate_system": {
+            "type": "string",
+            "title": "Coordinate System",
+            "description": "Spatial coordinate convention (always 'RAS')",
+            "default": "RAS"
+          }
+        },
+        "additionalProperties": true,
+        "type": "object",
+        "required": [
+          "clearance_mm",
+          "closest_points_mm",
+          "surface_distance_stats",
+          "resolution"
+        ],
+        "title": "ClearanceResponse",
+        "description": "Response payload for pairwise mask-to-mask clearance."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "ok"
+          }
+        },
+        "type": "object",
+        "title": "HealthResponse",
+        "description": "Health check response."
+      },
+      "ResolutionBlock": {
+        "properties": {
+          "spacing_mm": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Spacing Mm",
+            "description": "Voxel spacing (sz, sy, sx) in millimetres"
+          },
+          "voxel_diagonal_mm": {
+            "type": "number",
+            "title": "Voxel Diagonal Mm",
+            "description": "Voxel diagonal length in millimetres"
+          },
+          "voxel_extent_along_pair_mm": {
+            "type": "number",
+            "title": "Voxel Extent Along Pair Mm",
+            "description": "Voxel extent along closest voxel pair direction (2t term) in millimetres"
+          }
+        },
+        "type": "object",
+        "required": [
+          "spacing_mm",
+          "voxel_diagonal_mm",
+          "voxel_extent_along_pair_mm"
+        ],
+        "title": "ResolutionBlock",
+        "description": "Voxel grid resolution and directional extent along closest voxel pair."
+      },
+      "StructureStats": {
+        "properties": {
+          "volume_mm3": {
+            "type": "number",
+            "title": "Volume Mm3",
+            "description": "Structure volume in cubic millimetres"
+          },
+          "voxel_count": {
+            "type": "integer",
+            "title": "Voxel Count",
+            "description": "Total number of foreground voxels"
+          },
+          "bbox_ras_mm": {
+            "$ref": "#/components/schemas/BBoxRAS",
+            "description": "Axis-aligned bounding box in RAS millimetres"
+          },
+          "centroid_ras_mm": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Centroid Ras Mm",
+            "description": "Center of mass coordinates [x, y, z] in RAS mm"
+          },
+          "n_components": {
+            "type": "integer",
+            "title": "N Components",
+            "description": "Number of connected components using 6-connectivity"
+          },
+          "component_volumes_mm3": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Component Volumes Mm3",
+            "description": "Volumes of the largest 10 connected components in mm^3, sorted descending"
+          },
+          "coordinate_system": {
+            "type": "string",
+            "title": "Coordinate System",
+            "description": "Spatial coordinate convention (always 'RAS')",
+            "default": "RAS"
+          }
+        },
+        "type": "object",
+        "required": [
+          "volume_mm3",
+          "voxel_count",
+          "bbox_ras_mm",
+          "centroid_ras_mm",
+          "n_components",
+          "component_volumes_mm3"
+        ],
+        "title": "StructureStats",
+        "description": "Geometric and volumetric statistics for a segmented structure."
+      },
+      "StructureSummary": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Unique structure name (e.g. 'tumor', 'vessel')"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "target",
+              "risk",
+              "context"
+            ],
+            "title": "Role",
+            "description": "Functional role of the structure"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "role"
+        ],
+        "title": "StructureSummary",
+        "description": "Summary of a segmented structure within a case."
+      },
+      "UncertaintyRequest": {
+        "properties": {
+          "target_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Name",
+            "description": "Target structure name to perturb"
+          },
+          "risk_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Name",
+            "description": "Risk structure name"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target",
+            "description": "Alternative alias for target_name"
+          },
+          "risk": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk",
+            "description": "Alternative alias for risk_name"
+          },
+          "sigma_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Sigma Mm",
+            "description": "Boundary perturbation amplitude standard deviation in mm"
+          },
+          "corr_length_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Corr Length Mm",
+            "description": "Spatial correlation length in mm (must be positive)"
+          },
+          "bias_sigma_mm": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Bias Sigma Mm",
+            "description": "Global volumetric bias standard deviation in mm",
+            "default": 0.0
+          },
+          "n_samples": {
+            "type": "integer",
+            "maximum": 300.0,
+            "minimum": 1.0,
+            "title": "N Samples",
+            "description": "Number of Monte Carlo realizations (between 1 and 300; cap is 300)",
+            "default": 300
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed",
+            "description": "Optional random seed for deterministic realizations"
+          },
+          "threshold_mm": {
+            "type": "number",
+            "title": "Threshold Mm",
+            "description": "Clearance threshold in mm for probability estimation",
+            "default": 2.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "sigma_mm",
+          "corr_length_mm"
+        ],
+        "title": "UncertaintyRequest",
+        "description": "Request payload for clearance uncertainty analysis under smooth boundary perturbation."
+      },
+      "UncertaintyResponse": {
+        "properties": {
+          "baseline_mm": {
+            "type": "number",
+            "title": "Baseline Mm"
+          },
+          "samples_mm": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "Samples Mm"
+          },
+          "mean": {
+            "type": "number",
+            "title": "Mean"
+          },
+          "std": {
+            "type": "number",
+            "title": "Std"
+          },
+          "p05": {
+            "type": "number",
+            "title": "P05"
+          },
+          "p50": {
+            "type": "number",
+            "title": "P50"
+          },
+          "p95": {
+            "type": "number",
+            "title": "P95"
+          },
+          "p_below_threshold": {
+            "type": "number",
+            "title": "P Below Threshold"
+          },
+          "p_below_ci95": {
+            "items": {
+              "type": "number"
+            },
+            "type": "array",
+            "title": "P Below Ci95"
+          },
+          "p_overlap": {
+            "type": "number",
+            "title": "P Overlap"
+          },
+          "p_touching": {
+            "type": "number",
+            "title": "P Touching"
+          },
+          "n_samples": {
+            "type": "integer",
+            "title": "N Samples"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "threshold_mm": {
+            "type": "number",
+            "title": "Threshold Mm"
+          },
+          "params": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Params"
+          },
+          "censored_fraction": {
+            "type": "number",
+            "title": "Censored Fraction"
+          },
+          "resolution": {
+            "$ref": "#/components/schemas/ResolutionBlock"
+          },
+          "convention": {
+            "type": "string",
+            "title": "Convention",
+            "default": "face_to_face_voxel_sets"
+          },
+          "coordinate_system": {
+            "type": "string",
+            "title": "Coordinate System",
+            "default": "RAS"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baseline_mm",
+          "samples_mm",
+          "mean",
+          "std",
+          "p05",
+          "p50",
+          "p95",
+          "p_below_threshold",
+          "p_below_ci95",
+          "p_overlap",
+          "p_touching",
+          "n_samples",
+          "seed",
+          "threshold_mm",
+          "params",
+          "censored_fraction",
+          "resolution"
+        ],
+        "title": "UncertaintyResponse",
+        "description": "Response payload for clearance uncertainty analysis."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
